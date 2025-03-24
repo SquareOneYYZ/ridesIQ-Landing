@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Select from "react-select";
 import { Truck, Camera, Briefcase, Clock, Car, Construction, Box, MapPin, BarChart3, DollarSign, Video, HelpCircle } from "lucide-react";
+import Clarity from "@microsoft/clarity";
 
 import { z } from "zod";
 
@@ -84,7 +85,9 @@ export const MultiStepForm: React.FC = () => {
 		e.preventDefault();
 
 		if (formSchema.safeParse(formData).success) {
-			console.log("Form data is valid", formData);
+			// Track form submission event
+			Clarity.event("quote_form_submitted" + JSON.stringify(formData));
+
 			try {
 				const res = await fetch("/api/mail", {
 					method: "POST",
@@ -95,16 +98,22 @@ export const MultiStepForm: React.FC = () => {
 				});
 
 				if (res.ok) {
+					// Track successful submission
+					Clarity.event("quote_form_success");
 					console.log("Quote request sent successfully");
 					// Reset form
 					setFormData(initialFormData);
 					setStep(1);
 					// You might want to show a success message here
 				} else {
+					// Track failed submission
+					Clarity.event("quote_form_error");
 					console.error("Failed to send quote request");
 					// Handle error - show error message
 				}
 			} catch (error) {
+				// Track error
+				Clarity.event("quote_form_error" + JSON.stringify(error));
 				console.error("Error sending quote request:", error);
 				// Handle error - show error message
 			}
