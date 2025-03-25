@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Select from "react-select";
 import { Truck, Camera, Briefcase, Clock, Car, Construction, Box, MapPin, BarChart3, DollarSign, Video, HelpCircle } from "lucide-react";
-import Clarity from "@microsoft/clarity";
+import { clarityProvider } from "@/providers/clarity";
 
 import { z } from "zod";
 
@@ -86,7 +86,14 @@ export const MultiStepForm: React.FC = () => {
 
 		if (formSchema.safeParse(formData).success) {
 			// Track form submission event
-			Clarity.event("quote_form_submitted" + JSON.stringify(formData));
+			clarityProvider.trackEvent("quote_form_submit_attempt", {
+				company: formData.companyName,
+				region: formData.region,
+				interest: formData.interest,
+				vehicleCount: formData.vehicleCount,
+				trackingTypes: formData.trackingType.length,
+				featuresCount: formData.features.length,
+			});
 
 			try {
 				const res = await fetch("/api/mail", {
@@ -99,7 +106,11 @@ export const MultiStepForm: React.FC = () => {
 
 				if (res.ok) {
 					// Track successful submission
-					Clarity.event("quote_form_success");
+					clarityProvider.trackEvent("quote_form_success", {
+						company: formData.companyName,
+						region: formData.region,
+						interest: formData.interest,
+					});
 					console.log("Quote request sent successfully");
 					// Reset form
 					setFormData(initialFormData);
@@ -107,13 +118,20 @@ export const MultiStepForm: React.FC = () => {
 					// You might want to show a success message here
 				} else {
 					// Track failed submission
-					Clarity.event("quote_form_error");
+					clarityProvider.trackEvent("quote_form_error", {
+						error: "Failed to send quote request",
+						type: "submit_error",
+						company: formData.companyName,
+					});
 					console.error("Failed to send quote request");
 					// Handle error - show error message
 				}
 			} catch (error) {
-				// Track error
-				Clarity.event("quote_form_error" + JSON.stringify(error));
+				clarityProvider.trackEvent("quote_form_error", {
+					error: String(error),
+					type: "submit_error",
+					company: formData.companyName,
+				});
 				console.error("Error sending quote request:", error);
 				// Handle error - show error message
 			}
@@ -121,6 +139,16 @@ export const MultiStepForm: React.FC = () => {
 			console.log("Form validation failed:", formSchema.safeParse(formData).error);
 			// Handle validation error
 		}
+	};
+
+	// Track step changes
+	const handleStepChange = (newStep: number) => {
+		clarityProvider.trackEvent("form_step_change", {
+			previousStep: step,
+			newStep: newStep,
+			isForward: newStep > step,
+		});
+		setStep(newStep);
 	};
 
 	const renderStep = () => {
@@ -140,7 +168,7 @@ export const MultiStepForm: React.FC = () => {
 									key={option.value}
 									onClick={() => {
 										updateFormData("interest", option.value);
-										setStep(2);
+										handleStepChange(2);
 									}}
 									className={`p-6 rounded-xl border-2 transition-all duration-300 flex items-center gap-4 hover:border-[#678FCA] hover:shadow-lg ${
 										formData.interest === option.value ? "border-[#678FCA] bg-[#678FCA]/5" : "border-gray-200"
@@ -169,7 +197,7 @@ export const MultiStepForm: React.FC = () => {
 									key={count}
 									onClick={() => {
 										updateFormData("vehicleCount", count);
-										setStep(3);
+										handleStepChange(3);
 									}}
 									className={`p-4 rounded-xl border-2 transition-all duration-300 hover:border-[#678FCA] hover:shadow-lg ${
 										formData.vehicleCount === count ? "border-[#678FCA] bg-[#678FCA]/5" : "border-gray-200"
@@ -212,7 +240,7 @@ export const MultiStepForm: React.FC = () => {
 						</div>
 						<div className="flex justify-end">
 							<button
-								onClick={() => setStep(4)}
+								onClick={() => handleStepChange(4)}
 								className="bg-[#678FCA] text-white px-6 py-3 rounded-full hover:bg-[#678FCA]/90 transition-all"
 							>
 								Next Step
@@ -249,7 +277,7 @@ export const MultiStepForm: React.FC = () => {
 						</div>
 						<div className="flex justify-end">
 							<button
-								onClick={() => setStep(5)}
+								onClick={() => handleStepChange(5)}
 								className="bg-[#678FCA] text-white px-6 py-3 rounded-full hover:bg-[#678FCA]/90 transition-all"
 							>
 								Next Step
@@ -280,7 +308,7 @@ export const MultiStepForm: React.FC = () => {
 						/>
 						<div className="flex justify-end">
 							<button
-								onClick={() => setStep(6)}
+								onClick={() => handleStepChange(6)}
 								className="bg-[#678FCA] text-white px-6 py-3 rounded-full hover:bg-[#678FCA]/90 transition-all"
 								disabled={!formData.region}
 							>

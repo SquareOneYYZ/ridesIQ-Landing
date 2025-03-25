@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 import { sendEmail, StoreEmail } from "@/actions/smtp";
+import { clarityProvider } from "@/providers/clarity";
 
 export async function POST(request: Request) {
 	try {
 		const body = await request.json();
 		const { firstName, lastName, email, companyName, phone, interest, vehicleCount, trackingType, features, region, existingCustomer } = body;
+
+		// Track form submission attempt
+		clarityProvider.trackEvent("quote_form_submit_attempt", {
+			company: companyName,
+			region: region,
+			interest: interest,
+			vehicleCount: vehicleCount,
+			trackingTypes: trackingType.length,
+			featuresCount: features.length,
+		});
+
 		const html = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" lang="en">
   <head>
@@ -229,7 +241,7 @@ export async function POST(request: Request) {
 				<div class="label">Vehicle Types:</div>
 				<div class="value">
 				  <ul>
-					${trackingType.map((type :string) => `<li class="list-item">${type}</li>`).join("")}
+					${trackingType.map((type: string) => `<li class="list-item">${type}</li>`).join("")}
 				  </ul>
 				</div>
 			  </div>
@@ -237,7 +249,7 @@ export async function POST(request: Request) {
 				<div class="label">Required Features:</div>
 				<div class="value">
 				  <ul>
-					${features.map((feature :string) => `<li class="list-item">${feature}</li>`).join("")}
+					${features.map((feature: string) => `<li class="list-item">${feature}</li>`).join("")}
 				  </ul>
 				</div>
 			  </div>
@@ -255,7 +267,12 @@ export async function POST(request: Request) {
 			text: text,
 			html: teamEmailHtml,
 		});
+
 		if (!StoreEmailResult.success) {
+			clarityProvider.trackEvent("quote_form_error", {
+				error: "store_email_failed",
+				company: companyName,
+			});
 			return NextResponse.json({ error: "Failed to store email" }, { status: 500 });
 		}
 
@@ -269,11 +286,27 @@ export async function POST(request: Request) {
 		});
 
 		if (!SendToContacterResult.success) {
+			clarityProvider.trackEvent("quote_form_error", {
+				error: "send_confirmation_failed",
+				company: companyName,
+			});
 			return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
 		}
 
+		// Track successful submission
+		clarityProvider.trackEvent("quote_form_success", {
+			company: companyName,
+			region: region,
+			interest: interest,
+		});
+
 		return NextResponse.json({ success: true, messageId: SendToContacterResult.messageId });
 	} catch (error) {
+		// Track error
+		clarityProvider.trackEvent("quote_form_error", {
+			error: String(error),
+			type: "unexpected_error",
+		});
 		console.error("Error in email API route:", error);
 		return NextResponse.json({ error: "Internal server error" }, { status: 500 });
 	}
