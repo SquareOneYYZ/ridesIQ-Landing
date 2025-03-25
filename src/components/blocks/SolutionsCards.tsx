@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { clarityProvider } from "@/providers/clarity";
 
 function SolutionCards() {
 	const [hoveredCard, setHoveredCard] = useState<number | null>(null);
@@ -34,6 +35,15 @@ function SolutionCards() {
 		},
 	];
 
+	// Add tracking for card interactions
+	const handleCardHover = (card: (typeof cards)[0]) => {
+		setHoveredCard(card.id);
+		clarityProvider.trackEvent("solution_card_hover", {
+			cardId: String(card.id),
+			title: card.title,
+		});
+	};
+
 	return (
 		<div className="min-h-screen bg-black text-white p-6 md:p-12">
 			<div className="max-w-7xl mx-auto">
@@ -47,7 +57,7 @@ function SolutionCards() {
 						<motion.div
 							key={card.id}
 							className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${card.gradient} p-6`}
-							onHoverStart={() => setHoveredCard(card.id)}
+							onHoverStart={() => handleCardHover(card)}
 							onHoverEnd={() => setHoveredCard(null)}
 							layout
 							transition={{
