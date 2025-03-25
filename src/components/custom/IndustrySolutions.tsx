@@ -1,4 +1,7 @@
+"use client";
 import { Car, Shield, Truck, Route } from "lucide-react";
+import { useEffect } from "react";
+import { clarityProvider } from "@/providers/clarity";
 
 const solutions = [
 	{
@@ -52,6 +55,14 @@ const solutions = [
 ];
 
 export default function IndustrySolutions() {
+	useEffect(() => {
+		// Track when industry solutions section is viewed
+		clarityProvider.trackEvent("industry_card_view", {
+			industryType: "industry_solutions",
+			cardId: solutions.length.toString(),
+		});
+	}, []);
+
 	return (
 		<section className="bg-black min-h-screen w-full py-16 px-4">
 			<div className="max-w-7xl mx-auto">
