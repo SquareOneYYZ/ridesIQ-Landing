@@ -1,9 +1,12 @@
+'use client';
+import React from 'react';
+
 const page = () => {
-    return (
-        <div>
-            Enter
-        </div>
-    );
-}
+  return (
+    <div>
+      <h1 className='text-white'>INdustries Route</h1>
+    </div>
+  );
+};
 
 export default page;

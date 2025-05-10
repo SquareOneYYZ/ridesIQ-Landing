@@ -1,89 +1,70 @@
-'use client';
-
 import { motion } from 'framer-motion';
-import { Shield, ChevronRight } from 'lucide-react';
+import { ChevronRight, Shield } from 'lucide-react';
+import React from 'react';
 import Link from 'next/link';
+import { Navigation } from '../Navigation';
 
-const sections = [
-  {
-    id: 'introduction',
-    title: 'Introduction',
-    content: `We at RidesIQ are committed to ensuring the security of our users and systems. This Responsible Disclosure Policy outlines our process for reporting vulnerabilities and how we handle such reports. Your contributions to the security of our platform are highly appreciated.`,
-  },
-  {
-    id: 'reporting',
-    title: 'Reporting a Vulnerability',
-    content: `If you believe you've discovered a security vulnerability in any of our systems, services, or products, we encourage you to let us know immediately. Please send your report to security@ridesiq.com.
+export const TrustCenter = () => {
+  const sections = [
+    {
+      id: 'security',
+      title: 'Security',
+      content: `We take a proactive and multi-layered approach to security:
 
-Include as much detail as possible in your report:
-• Description of the vulnerability
-• Steps to reproduce the issue
-• Potential impact
-• Any relevant screenshots or logs`,
-  },
-  {
-    id: 'guidelines',
-    title: 'Responsible Guidelines',
-    content: `When reporting a vulnerability, please:
-• Avoid violating privacy, degrading user experience, or disrupting production systems
-• Do not access or modify data that does not belong to you
-• Provide sufficient time for us to investigate and address the issue before disclosing it publicly`,
-  },
-  {
-    id: 'recognition',
-    title: 'Recognition',
-    content: `We may publicly acknowledge your contribution if your report leads to a significant fix or improvement. We deeply value your input and aim to work collaboratively with the community to maintain a safe environment.`,
-  },
-  {
-    id: 'legal',
-    title: 'Legal Safe Harbor',
-    content: `We will not pursue legal action against individuals who:
-• Engage in testing without harming RidesIQ or its users
-• Report vulnerabilities responsibly
-• Do not exploit or disclose the vulnerability to others before it is resolved`,
-  },
-  {
-    id: 'contact',
-    title: 'Contact',
-    content: `For all security-related queries, please contact:
-Email: security@ridesiq.com
-Phone: 1-800-RIDESIQ
-Address: 123 Fleet Street, Toronto, ON M5V 2B1`,
-  },
-];
+• Encryption in Transit & at Rest: All data is encrypted using industry-standard SSL/TLS and AES-256 encryption.
+• Access Controls: Internal access to customer data is limited based on the principle of least privilege.
+• Infrastructure Security: Our systems are hosted with enterprise-grade cloud providers with SOC 2, ISO 27001, and PCI DSS certifications.
+• Monitoring & Alerts: Real-time monitoring, logging, and intrusion detection help us respond quickly to any unusual activity.
+• Penetration Testing: Regular vulnerability assessments and third-party penetration tests are conducted to strengthen our defenses.
+        
+See our Responsible Disclosure Policy if you're a security researcher.`,
+    },
+    {
+      id: 'privacy',
+      title: 'Privacy',
+      content: `We are committed to data transparency and user control. Our Privacy Policy outlines exactly how we collect, use, and safeguard your information:
 
-const renderContent = (content: string) => {
-  return content.split('\n\n').map((block, i) => {
-    if (block.includes('•')) {
-      const [intro, ...items] = block.split('\n');
+• Global Compliance: We comply with GDPR, CCPA, and PIPEDA.
+• Consent-Based Tracking: Cookie consent is required for data collection across our website.
+• No Selling of Data: We do not sell or share user data with third parties for marketing purposes.
+• Data Minimization: We only collect data necessary for providing services and improving your experience.`,
+    },
+  ];
+
+  const renderContent = (content: string) => {
+    return content.split('\n\n').map((block, i) => {
+      if (block.includes('•')) {
+        const [intro, ...items] = block.split('\n');
+        return (
+          <div key={i} className='mb-4'>
+            {intro && (
+              <p className='text-gray-600 leading-relaxed mb-2'>{intro}</p>
+            )}
+            <ul className='list-disc pl-4 space-y-2'>
+              {items.map((item, j) => (
+                <li key={j} className='text-gray-600'>
+                  {item.replace('• ', '')}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
       return (
-        <div key={i} className='mb-4'>
-          {intro && (
-            <p className='text-gray-600 leading-relaxed mb-2'>{intro}</p>
-          )}
-          <ul className='list-disc pl-4 space-y-2'>
-            {items.map((item, j) => (
-              <li key={j} className='text-gray-600'>
-                {item.replace('• ', '')}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p key={i} className='mb-4 text-gray-600 leading-relaxed'>
+          {block}
+        </p>
       );
-    }
-    return (
-      <p key={i} className='mb-4 text-gray-600 leading-relaxed'>
-        {block}
-      </p>
-    );
-  });
-};
+    });
+  };
 
-export default function ResponsibleDisclosureContent() {
   return (
     <div className='min-h-screen bg-white'>
+      <Navigation />
+
       {/* Hero Section */}
       <section className='relative min-h-[40vh] flex items-center justify-center overflow-hidden'>
+        {/* Background & Overlays */}
         <div className='absolute inset-0'>
           <div className='absolute inset-0 bg-gradient-to-r from-gray-900/95 to-gray-900/70' />
           <div className='absolute inset-0 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:32px_32px] opacity-10' />
@@ -104,7 +85,7 @@ export default function ResponsibleDisclosureContent() {
                 className='inline-flex items-center px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-white text-sm font-medium'
               >
                 <Shield className='w-4 h-4 mr-2' />
-                Last Updated: March 15, 2024
+                Updated: March 2024
               </motion.div>
 
               <motion.h1
@@ -113,9 +94,9 @@ export default function ResponsibleDisclosureContent() {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 className='text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]'
               >
-                <span className='text-white'>Responsible </span>
+                <span className='text-white'>Trust</span>{' '}
                 <span className='bg-gradient-to-r from-[#678FCA] to-[#99D5C9] bg-clip-text text-transparent'>
-                  Disclosure
+                  Center
                 </span>
               </motion.h1>
             </motion.div>
@@ -190,7 +171,7 @@ export default function ResponsibleDisclosureContent() {
                   viewport={{ once: true }}
                   className='text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-8'
                 >
-                  Found a Vulnerability?
+                  Have Questions About Your Privacy?
                 </motion.h2>
 
                 <motion.p
@@ -200,8 +181,8 @@ export default function ResponsibleDisclosureContent() {
                   transition={{ delay: 0.1 }}
                   className='text-xl text-white/90 mb-12'
                 >
-                  We welcome responsible security disclosures. Let us know so we
-                  can keep our systems safe.
+                  Our team is here to help you understand how we protect your
+                  data
                 </motion.p>
 
                 <motion.div
@@ -226,4 +207,4 @@ export default function ResponsibleDisclosureContent() {
       </section>
     </div>
   );
-}
+};
