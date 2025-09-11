@@ -163,7 +163,7 @@ function Home() {
         <Navigation />
       </div>
 
-      <div className="h-screen overflow-y-scroll snap-y snap-mandatory bg-white scroll-container">
+      <div className="h-screen overflow-y-scroll snap-y snap-proximity bg-white scroll-container">
         <Toaster position="top-center" />
         {/* Hero Section */}
         <section className="relative snap-start min-h-[100svh] flex items-center justify-center overflow-hidden bg-white">
